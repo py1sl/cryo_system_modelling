@@ -48,15 +48,10 @@ plot(
 );
 
 // Print final values
-echo(false);
-final_T_coldBox := val(T_coldBox, 2000);
-final_T_moderator := val(T_moderator, 2000);
-final_control := val(controlSignal, 2000);
-
 print("=================================================================\n");
 print("SIMULATION RESULTS\n");
 print("=================================================================\n");
-print("Final Cold Box Temperature:    " + String(final_T_coldBox) + " K\n");
-print("Final Moderator Temperature:   " + String(final_T_moderator) + " K\n");
-print("Final Control Signal:          " + String(final_control) + "\n");
+print("Final Cold Box Temperature:    " + String(val(T_coldBox, 2000)) + " K\n");
+print("Final Moderator Temperature:   " + String(val(T_moderator, 2000)) + " K\n");
+print("Final Control Signal:          " + String(val(controlSignal, 2000)) + "\n");
 print("=================================================================\n");
