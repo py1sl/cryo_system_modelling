@@ -5,6 +5,7 @@ model ColdBox "Cold Box Model for Cooling Liquid Hydrogen"
   parameter Real cp = 14300 "Specific heat capacity of liquid H2 (J/(kg*K))";
   parameter Real coolingPower = 5000 "Maximum cooling power (W)";
   parameter Real T_setpoint = 20 "Target temperature (K)";
+  parameter Real massFlowRate = 0.1 "Mass flow rate through system (kg/s)";
   
   // Variables
   Real T(start=300) "Temperature of cold box (K)";
@@ -32,7 +33,7 @@ equation
   
   // Output conditions
   T_out = T;
-  massFlowOut = 0.1; // Constant mass flow rate (kg/s)
+  massFlowOut = massFlowRate;
   
   annotation(Documentation(info="<html>
 <p>Model of a cold box that cools liquid hydrogen to cryogenic temperatures.</p>
