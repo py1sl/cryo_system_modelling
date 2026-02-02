@@ -1,0 +1,62 @@
+// OpenModelica Script to simulate the Liquid Hydrogen System
+// Run this script with: omc run_simulation.mos
+
+// Load the package
+loadFile("CryoSystem/package.mo");
+
+// Check the model
+checkModel(CryoSystem.LiquidHydrogenSystem);
+
+// Simulate
+simulate(
+  CryoSystem.LiquidHydrogenSystem,
+  startTime=0,
+  stopTime=2000,
+  numberOfIntervals=2000,
+  tolerance=1e-6,
+  outputFormat="mat"
+);
+
+// Plot temperatures
+plot(
+  {T_coldBox, T_moderator, T_supplyLine, T_returnLine},
+  title="Liquid Hydrogen System - Temperature Profile",
+  legend=true,
+  xlabel="Time (s)",
+  ylabel="Temperature (K)",
+  grid=true
+);
+
+// Plot control signal
+plot(
+  {controlSignal},
+  title="PID Controller Output",
+  legend=true,
+  xlabel="Time (s)",
+  ylabel="Control Signal (0-1)",
+  grid=true
+);
+
+// Plot beam status
+plot(
+  {beamStatus},
+  title="Beam Status",
+  legend=true,
+  xlabel="Time (s)",
+  ylabel="Status (0=OFF, 1=ON)",
+  grid=true
+);
+
+// Print final values
+echo(false);
+final_T_coldBox := val(T_coldBox, 2000);
+final_T_moderator := val(T_moderator, 2000);
+final_control := val(controlSignal, 2000);
+
+print("=================================================================\n");
+print("SIMULATION RESULTS\n");
+print("=================================================================\n");
+print("Final Cold Box Temperature:    " + String(final_T_coldBox) + " K\n");
+print("Final Moderator Temperature:   " + String(final_T_moderator) + " K\n");
+print("Final Control Signal:          " + String(final_control) + "\n");
+print("=================================================================\n");
