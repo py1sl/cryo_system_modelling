@@ -10,7 +10,6 @@ model PIDController "PID Controller for Temperature Control"
   Real error "Temperature error (K)";
   Real integral(start=0) "Integral of error";
   Real derivative "Derivative of error";
-  Real error_prev(start=0) "Previous error for derivative";
   
   // Inputs
   input Real T_measured "Measured temperature (K)";
@@ -25,9 +24,8 @@ equation
   // Integral term
   der(integral) = error;
   
-  // Derivative term (approximation)
+  // Derivative term
   derivative = der(error);
-  error_prev = error;
   
   // PID control law
   u = max(0, min(1, (Kp * error + Ki * integral + Kd * derivative) / 1000));
