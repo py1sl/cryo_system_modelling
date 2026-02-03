@@ -18,9 +18,13 @@ This repository contains an OpenModelica model of a liquid hydrogen cooling syst
    ```bash
    OMEdit CryoSystem/package.mo
    ```
-3. Navigate to `CryoSystem.LiquidHydrogenSystem` and simulate
+   **Important:** Always load `CryoSystem/package.mo` (the package entry point), not `LiquidHydrogenSystem.mo` directly.
+3. In OMEdit's Libraries Browser, expand `CryoSystem` and double-click `LiquidHydrogenSystem`
+4. Click the "Simulate" button
 
 See [MODEL_DOCUMENTATION.md](MODEL_DOCUMENTATION.md) for detailed documentation.
+
+**Having loading issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common solutions.
 
 ## System Behavior
 
