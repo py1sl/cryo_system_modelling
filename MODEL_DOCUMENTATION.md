@@ -68,7 +68,7 @@ The model tracks these effects in:
 - PID controller adjusts cooling power to reach and maintain setpoint
 
 ### Operating Phase (1000s+)
-- Beam ramps up from 0 to 2000W over 200 seconds (1000-1200s)
+- Beam ramps up from 0 to 200W over 200 seconds (1000-1200s)
 - After ramp-up, beam operates at full power with 10% fluctuations (simulates realistic beam variations)
 - Variable beam power deposits time-varying heat load into moderator vessel
 - Moderator temperature varies with beam power fluctuations
@@ -80,23 +80,25 @@ The model tracks these effects in:
 ## Key Parameters
 
 ### Cold Box
-- Mass: 100 kg
+- Mass: 0.059 kg (hydrogen in ~10x10x10cm vessel)
 - Cooling power: 5000 W
 - Target temperature: 20 K
+- Mass flow rate: 0.04 kg/s (40 g/s)
 
 ### Catalyst Vessel
-- Mass: 20 kg (hydrogen)
+- Mass: 0.059 kg (hydrogen in ~10x10x10cm vessel)
 - Catalyst mass: 5 kg (configurable)
 - Catalyst type: iron_oxide (configurable)
 - Conversion heat: 527 kJ/kg
 - Heat leak: 10 W
 
 ### Moderator Vessel
-- Mass: 50 kg
-- Beam heat load: Variable (0-2200W with fluctuations)
+- Mass: 0.059 kg (hydrogen in 10x10x10cm vessel with 3mm aluminum walls)
+- Beam heat load: Variable (0-220W with fluctuations)
 
 ### Transfer Lines
-- Length: 10 m each
+- Length: 5 m each (3mm aluminum pipe)
+- Thermal mass: 2.163 kg (aluminum)
 - Heat leak: 5 W/m
 
 ### PID Controller
@@ -185,14 +187,15 @@ Edit the component instantiation in `LiquidHydrogenSystem.mo`:
 ```modelica
 Components.ColdBox coldBox(
   T_setpoint=20,      // Target temperature
-  mass=100,           // Hydrogen mass
-  coolingPower=5000   // Maximum cooling power
+  mass=0.059,         // Hydrogen mass (kg)
+  coolingPower=5000,  // Maximum cooling power
+  massFlowRate=0.04   // Mass flow rate (kg/s)
 );
 
 Components.CatalystVessel catalystVessel(
   catalystType="iron_oxide",  // Options: iron_oxide, chromium_oxide, nickel
   catalystMass=5,             // Catalyst mass affects conversion rate
-  mass=20                     // Hydrogen mass in vessel
+  mass=0.059                  // Hydrogen mass in vessel (kg)
 );
 ```
 
@@ -209,7 +212,7 @@ The beam power profile is now fully configurable using parameters in `LiquidHydr
 // Beam profile parameters (default values shown)
 parameter Real beamStartTime = 1000;           // Time when beam starts (s)
 parameter Real rampDuration = 200;             // Duration of power ramp (s)
-parameter Real nominalBeamPower = 2000;        // Nominal beam power (W)
+parameter Real nominalBeamPower = 200;         // Nominal beam power (W)
 parameter Real fluctuationAmplitude = 0.1;     // Fluctuation amplitude (fraction)
 parameter Real fluctuationPeriod = 100;        // Fluctuation period (s)
 ```
@@ -228,7 +231,7 @@ rampDuration = 500
 fluctuationAmplitude = 0.02
 
 // High power with large variations
-nominalBeamPower = 3000
+nominalBeamPower = 300
 fluctuationAmplitude = 0.15
 
 // Fast fluctuations (simulating beam instability)

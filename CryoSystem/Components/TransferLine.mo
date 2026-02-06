@@ -1,9 +1,9 @@
 within CryoSystem.Components;
 model TransferLine "Transfer Line for Hydrogen Flow"
   // Parameters
-  parameter Real length = 10 "Length of transfer line (m)";
+  parameter Real length = 5 "Length of transfer line (m)";
   parameter Real heatLeakPerMeter = 5 "Heat leak per meter (W/m)";
-  parameter Real thermalMass = 10 "Thermal mass of line (kg)";
+  parameter Real thermalMass = 2.163 "Thermal mass of line (kg)";
   parameter Real cp = 14300 "Specific heat capacity (J/(kg*K))";
   parameter Real k_backconversion_wall = 0.0002 "Back conversion rate due to wall interactions (1/s)" annotation(Dialog(tab="Advanced"));
   parameter Real T_backconversion_scale = 50 "Temperature scale for back-conversion rate (K)" annotation(Dialog(tab="Advanced"));
