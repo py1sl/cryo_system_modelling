@@ -26,7 +26,8 @@ See [MODEL_DOCUMENTATION.md](MODEL_DOCUMENTATION.md) for detailed documentation.
 ## System Behavior
 
 - **0-1000s**: Beam OFF - System cools from ambient to 20K, catalyst converts ortho to para hydrogen
-- **1000s+**: Beam ON - Heat load applied, PID compensates, back-conversion occurs
+- **1000-1200s**: Beam ramps up - Heat load gradually increases from 0 to 2000W
+- **1200s+**: Beam at variable power - Operates at ~2000W with 10% fluctuations simulating realistic beam variations
 
 ## Key Outputs
 
@@ -36,6 +37,7 @@ See [MODEL_DOCUMENTATION.md](MODEL_DOCUMENTATION.md) for detailed documentation.
 - `T_supplyLine`: Supply line temperature
 - `T_returnLine`: Return line temperature
 - `controlSignal`: PID controller output
+- `currentBeamPower`: Time-varying beam heat load
 - `orthoFraction_catalyst`: Ortho-hydrogen fraction after catalyst
 - `paraFraction_catalyst`: Para-hydrogen fraction after catalyst
 - `orthoFraction_moderator`: Ortho-hydrogen fraction in moderator

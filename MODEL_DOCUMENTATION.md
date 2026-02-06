@@ -68,13 +68,14 @@ The model tracks these effects in:
 - PID controller adjusts cooling power to reach and maintain setpoint
 
 ### Operating Phase (1000s+)
-- Beam turns ON
-- Beam deposits heat load (2000W) into moderator vessel
-- Moderator temperature rises
-- Back-conversion increases due to higher temperature
+- Beam ramps up from 0 to 2000W over 200 seconds (1000-1200s)
+- After ramp-up, beam operates at full power with 10% fluctuations (simulates realistic beam variations)
+- Variable beam power deposits time-varying heat load into moderator vessel
+- Moderator temperature varies with beam power fluctuations
+- Back-conversion rate adjusts based on actual beam power
 - Warm hydrogen returns to cold box
-- PID controller increases cooling power to compensate
-- System reaches new steady state
+- PID controller dynamically adjusts cooling power to compensate
+- System maintains stable operation despite variable heat load
 
 ## Key Parameters
 
@@ -92,7 +93,7 @@ The model tracks these effects in:
 
 ### Moderator Vessel
 - Mass: 50 kg
-- Beam heat load: 2000 W
+- Beam heat load: Variable (0-2200W with fluctuations)
 
 ### Transfer Lines
 - Length: 10 m each
@@ -122,6 +123,7 @@ The model tracks these effects in:
    - `paraFraction_catalyst` - Para fraction after catalyst
    - `orthoFraction_moderator` - Ortho fraction in moderator
    - `paraFraction_moderator` - Para fraction in moderator
+   - `currentBeamPower` - Time-varying beam heat load
 
 ### Using OpenModelica Compiler (omc)
 ```bash
@@ -144,23 +146,23 @@ omc.sendExpression("simulate(CryoSystem.LiquidHydrogenSystem, stopTime=2000)")
 ## Expected Results
 
 ### Temperature Profiles
-- **Cold Box**: Starts at ~300K, cools to 20K, slight increase when beam turns on
+- **Cold Box**: Starts at ~300K, cools to 20K, responds to variable beam power
 - **Catalyst Vessel**: Follows cold box, may be slightly warmer due to conversion heat
-- **Moderator**: Starts at 20K, rises significantly when beam turns on
+- **Moderator**: Starts at 20K, rises and fluctuates with variable beam power after 1000s
 - **Supply Line**: Close to catalyst temperature with slight heat leak
-- **Return Line**: Close to moderator temperature with slight heat leak
+- **Return Line**: Tracks moderator temperature fluctuations with slight heat leak
 
 ### Ortho-Para Conversion
 - **Initial State**: System starts at ~75% ortho (room temperature equilibrium)
 - **After Catalyst**: Ortho fraction drops significantly (target: <5% at steady state)
 - **In Moderator**: Para fraction slightly decreases due to back-conversion
-- **Beam Effect**: When beam turns on, back-conversion increases with temperature
+- **Variable Beam Effect**: Back-conversion rate varies proportionally with beam power
 
 ### Control Signal
 - Initially high (1.0) during cool-down
 - Decreases as target temperature is reached
 - Must compensate for catalyst conversion heat
-- Increases when beam turns on to provide additional cooling
+- Dynamically adjusts to track variable beam power fluctuations
 
 ## Model Validation
 
@@ -201,13 +203,30 @@ Three catalyst types are available with different effectiveness:
 - `"nickel"`: Effectiveness = 0.8 (slower conversion)
 
 ### Changing Beam Schedule
-Modify the equation in `LiquidHydrogenSystem.mo`:
+Modify the equation in `LiquidHydrogenSystem.mo` to customize the beam power profile:
 
 ```modelica
+// Example: Simple on/off beam
 if time < 1000 then
-  beamStatus = 0;  // Change 1000 to desired beam-on time
+  beamPower = 0;
 else
-  beamStatus = 1;
+  beamPower = 2000;
+end if;
+
+// Example: Pulsed beam operation
+if time < 1000 then
+  beamPower = 0;
+elseif mod(time, 100) < 50 then
+  beamPower = 2000;  // Beam on for 50s
+else
+  beamPower = 0;     // Beam off for 50s
+end if;
+
+// Example: Linear ramp
+if time < 1000 then
+  beamPower = 0;
+else
+  beamPower = min((time - 1000) * 2, 2000);  // Ramp from 0 to 2000W
 end if;
 ```
 

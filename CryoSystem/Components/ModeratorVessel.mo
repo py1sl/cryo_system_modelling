@@ -3,7 +3,6 @@ model ModeratorVessel "Moderator Vessel with Beam Heat Load"
   // Parameters
   parameter Real mass = 50 "Mass of hydrogen in vessel (kg)";
   parameter Real cp = 14300 "Specific heat capacity of liquid H2 (J/(kg*K))";
-  parameter Real beamPower = 2000 "Beam heat load when on (W)";
   parameter Real k_backconversion_wall = 0.0005 "Back conversion rate due to wall interactions (1/s)" annotation(Dialog(tab="Advanced"));
   parameter Real beamBackconversionFactor = 0.5 "Beam heating effect on back-conversion rate (dimensionless)" annotation(Dialog(tab="Advanced"));
   parameter Real T_backconversion_scale = 50 "Temperature scale for back-conversion rate (K)" annotation(Dialog(tab="Advanced"));
@@ -20,7 +19,7 @@ model ModeratorVessel "Moderator Vessel with Beam Heat Load"
   Real orthoFraction_in "Incoming ortho fraction";
   
   // Beam control
-  input Real beamOn "Beam status (0=off, 1=on)";
+  input Real beamPower "Time-varying beam heat load (W)";
   
   // Outputs
   output Real T_out "Temperature output to return line (K)";
@@ -33,14 +32,15 @@ equation
   paraFraction = 1 - orthoFraction;
   
   // Beam heat load
-  Q_beam = beamPower * beamOn;
+  Q_beam = beamPower;
   
   // Heat input from incoming flow
   Q_in = massFlowIn * cp * (T_in - T);
   
   // Back-conversion due to wall interactions and beam heating
   // Increases with temperature and para content
-  backConversionRate = k_backconversion_wall * paraFraction * mass * (1 + beamOn * beamBackconversionFactor) * exp(T/T_backconversion_scale);
+  // Beam heating effect is proportional to actual beam power
+  backConversionRate = k_backconversion_wall * paraFraction * mass * (1 + (beamPower/2000) * beamBackconversionFactor) * exp(T/T_backconversion_scale);
   
   // Net change in ortho fraction (back-conversion increases ortho)
   der(orthoFraction) = backConversionRate / mass;
@@ -56,12 +56,14 @@ equation
   
   annotation(Documentation(info="<html>
 <p>Model of a moderator vessel where liquid hydrogen is heated by beam interaction.</p>
-<p>The beam can be turned on/off to apply heat load.</p>
+<p>The beam power can vary over time to simulate realistic accelerator operation with
+variable beam parameters.</p>
 <h3>Ortho-Para Conversion:</h3>
 <p>The moderator vessel also models back-conversion of para-hydrogen to ortho-hydrogen due to:</p>
 <ul>
 <li>Interaction with vessel walls</li>
-<li>Elevated temperatures when beam is on</li>
+<li>Elevated temperatures when beam power is applied</li>
+<li>Beam heating effects (proportional to beam power)</li>
 </ul>
 <p>This back-conversion partially reverses the catalyst effect and must be accounted for
 in the overall system hydrogen composition.</p>
