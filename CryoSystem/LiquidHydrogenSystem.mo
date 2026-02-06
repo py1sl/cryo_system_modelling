@@ -11,6 +11,13 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   // System variables
   Real beamPower(start=0) "Time-varying beam heat load (W)";
   
+  // Beam profile parameters
+  parameter Real beamStartTime = 1000 "Time when beam starts ramping up (s)";
+  parameter Real rampDuration = 200 "Duration of beam power ramp (s)";
+  parameter Real nominalBeamPower = 2000 "Nominal beam power at full operation (W)";
+  parameter Real fluctuationAmplitude = 0.1 "Amplitude of beam fluctuations as fraction of nominal (0-1)";
+  parameter Real fluctuationPeriod = 100 "Period of beam fluctuations (s)";
+  
   // Output variables for monitoring
   Real T_coldBox "Temperature of cold box (K)";
   Real T_catalyst "Temperature of catalyst vessel (K)";
@@ -30,16 +37,16 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   
 equation
   // Beam control logic - variable heat load profile
-  // Beam is off for first 1000 seconds, then ramps up
-  if time < 1000 then
+  // Beam is off for first beamStartTime seconds, then ramps up
+  if time < beamStartTime then
     beamPower = 0;
-  elseif time < 1200 then
-    // Ramp up from 0 to 2000W over 200 seconds
-    beamPower = (time - 1000) * 10;
+  elseif time < beamStartTime + rampDuration then
+    // Ramp up from 0 to nominalBeamPower over rampDuration seconds
+    beamPower = (time - beamStartTime) * (nominalBeamPower / rampDuration);
   else
-    // Full power with 10% variation (simulating beam fluctuations)
-    // Adjusted phase to ensure smooth transition at t=1200
-    beamPower = 2000 * (1 + 0.1 * sin((time - 1200)/100));
+    // Full power with fluctuations (simulating beam variations)
+    // Adjusted phase to ensure smooth transition at end of ramp
+    beamPower = nominalBeamPower * (1 + fluctuationAmplitude * sin((time - beamStartTime - rampDuration) / fluctuationPeriod));
   end if;
   
   // Connect cold box to catalyst vessel
@@ -121,8 +128,16 @@ The catalyst vessel accelerates this conversion, which is important because:</p>
 </ul>
 <h3>Operation:</h3>
 <p>The system starts with the beam off, cooling the hydrogen to the target temperature.
-After 1000 seconds, the beam power ramps up from 0 to 2000W over 200 seconds, then operates
-at full power with 10% fluctuations to simulate realistic beam variations.
+The beam power profile is configurable via parameters:</p>
+<ul>
+<li><b>beamStartTime:</b> When beam ramping begins (default: 1000s)</li>
+<li><b>rampDuration:</b> Duration of power ramp-up (default: 200s)</li>
+<li><b>nominalBeamPower:</b> Full beam power (default: 2000W)</li>
+<li><b>fluctuationAmplitude:</b> Amplitude of beam variations as fraction of nominal (default: 0.1)</li>
+<li><b>fluctuationPeriod:</b> Period of sinusoidal fluctuations (default: 100s)</li>
+</ul>
+<p>With default parameters, the beam ramps up from 0 to 2000W over 200 seconds (1000-1200s), then operates
+at full power with ±10% sinusoidal fluctuations to simulate realistic beam variations.
 The PID controller adjusts the cold box cooling power to maintain stable temperatures.</p>
 <h3>Key Outputs:</h3>
 <ul>

@@ -203,32 +203,40 @@ Three catalyst types are available with different effectiveness:
 - `"nickel"`: Effectiveness = 0.8 (slower conversion)
 
 ### Changing Beam Schedule
-Modify the equation in `LiquidHydrogenSystem.mo` to customize the beam power profile:
+The beam power profile is now fully configurable using parameters in `LiquidHydrogenSystem.mo`:
 
 ```modelica
-// Example: Simple on/off beam
-if time < 1000 then
-  beamPower = 0;
-else
-  beamPower = 2000;
-end if;
-
-// Example: Pulsed beam operation
-if time < 1000 then
-  beamPower = 0;
-elseif mod(time, 100) < 50 then
-  beamPower = 2000;  // Beam on for 50s
-else
-  beamPower = 0;     // Beam off for 50s
-end if;
-
-// Example: Linear ramp
-if time < 1000 then
-  beamPower = 0;
-else
-  beamPower = min((time - 1000) * 2, 2000);  // Ramp from 0 to 2000W
-end if;
+// Beam profile parameters (default values shown)
+parameter Real beamStartTime = 1000;           // Time when beam starts (s)
+parameter Real rampDuration = 200;             // Duration of power ramp (s)
+parameter Real nominalBeamPower = 2000;        // Nominal beam power (W)
+parameter Real fluctuationAmplitude = 0.1;     // Fluctuation amplitude (fraction)
+parameter Real fluctuationPeriod = 100;        // Fluctuation period (s)
 ```
+
+**Example configurations:**
+
+```modelica
+// Simple on/off beam (no ramp, no fluctuations)
+beamStartTime = 1000
+rampDuration = 0
+fluctuationAmplitude = 0
+
+// Slow ramp with minimal fluctuations
+beamStartTime = 500
+rampDuration = 500
+fluctuationAmplitude = 0.02
+
+// High power with large variations
+nominalBeamPower = 3000
+fluctuationAmplitude = 0.15
+
+// Fast fluctuations (simulating beam instability)
+fluctuationPeriod = 50
+fluctuationAmplitude = 0.2
+```
+
+For custom beam profiles, modify the equation section to implement any time-dependent function.
 
 ## Physical Properties
 
