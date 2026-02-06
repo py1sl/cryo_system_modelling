@@ -9,7 +9,14 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   Components.PIDController pidController(T_setpoint=20, Kp=100, Ki=10, Kd=5) annotation(Placement(transformation(extent={{-100,20},{-80,40}})));
   
   // System variables
-  Real beamStatus(start=0) "Beam status: 0=off, 1=on";
+  Real beamPower(start=0) "Time-varying beam heat load (W)";
+  
+  // Beam profile parameters
+  parameter Real beamStartTime = 1000 "Time when beam starts ramping up (s)";
+  parameter Real rampDuration = 200 "Duration of beam power ramp (s)";
+  parameter Real nominalBeamPower = 2000 "Nominal beam power at full operation (W)";
+  parameter Real fluctuationAmplitude = 0.1 "Amplitude of beam fluctuations as fraction of nominal (0-1)";
+  parameter Real fluctuationPeriod = 100 "Period of beam fluctuations (s)";
   
   // Output variables for monitoring
   Real T_coldBox "Temperature of cold box (K)";
@@ -18,6 +25,7 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   Real T_supplyLine "Temperature of supply line (K)";
   Real T_returnLine "Temperature of return line (K)";
   Real controlSignal "PID control signal";
+  Real currentBeamPower "Current beam power (W)";
   
   // Ortho-para fraction monitoring
   Real orthoFraction_coldBox "Ortho fraction at cold box";
@@ -28,11 +36,17 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   Real paraFraction_moderator "Para fraction at moderator";
   
 equation
-  // Beam control logic - beam turns on after 1000 seconds
-  if time < 1000 then
-    beamStatus = 0;
+  // Beam control logic - variable heat load profile
+  // Beam is off for first beamStartTime seconds, then ramps up
+  if time < beamStartTime then
+    beamPower = 0;
+  elseif time < beamStartTime + rampDuration then
+    // Ramp up from 0 to nominalBeamPower over rampDuration seconds
+    beamPower = (time - beamStartTime) * (nominalBeamPower / rampDuration);
   else
-    beamStatus = 1;
+    // Full power with fluctuations (simulating beam variations)
+    // Adjusted phase to ensure smooth transition at end of ramp
+    beamPower = nominalBeamPower * (1 + fluctuationAmplitude * sin((time - beamStartTime - rampDuration) / fluctuationPeriod));
   end if;
   
   // Connect cold box to catalyst vessel
@@ -49,7 +63,7 @@ equation
   moderatorVessel.T_in = supplyLine.T_out;
   moderatorVessel.massFlowIn = supplyLine.massFlowOut;
   moderatorVessel.orthoFraction_in = supplyLine.orthoFraction_out;
-  moderatorVessel.beamOn = beamStatus;
+  moderatorVessel.beamPower = beamPower;
   
   // Connect moderator vessel to return line
   returnLine.T_in = moderatorVessel.T_out;
@@ -72,6 +86,7 @@ equation
   T_supplyLine = supplyLine.T;
   T_returnLine = returnLine.T;
   controlSignal = pidController.u;
+  currentBeamPower = beamPower;
   
   // Monitor ortho-para fractions
   orthoFraction_coldBox = coldBox.orthoFraction;
@@ -113,7 +128,16 @@ The catalyst vessel accelerates this conversion, which is important because:</p>
 </ul>
 <h3>Operation:</h3>
 <p>The system starts with the beam off, cooling the hydrogen to the target temperature.
-After 1000 seconds, the beam turns on, adding heat load to the moderator vessel.
+The beam power profile is configurable via parameters:</p>
+<ul>
+<li><b>beamStartTime:</b> When beam ramping begins (default: 1000s)</li>
+<li><b>rampDuration:</b> Duration of power ramp-up (default: 200s)</li>
+<li><b>nominalBeamPower:</b> Full beam power (default: 2000W)</li>
+<li><b>fluctuationAmplitude:</b> Amplitude of beam variations as fraction of nominal (default: 0.1)</li>
+<li><b>fluctuationPeriod:</b> Period of sinusoidal fluctuations (default: 100s)</li>
+</ul>
+<p>With default parameters, the beam ramps up from 0 to 2000W over 200 seconds (1000-1200s), then operates
+at full power with ±10% sinusoidal fluctuations to simulate realistic beam variations.
 The PID controller adjusts the cold box cooling power to maintain stable temperatures.</p>
 <h3>Key Outputs:</h3>
 <ul>
@@ -127,6 +151,7 @@ The PID controller adjusts the cold box cooling power to maintain stable tempera
 <li>paraFraction_catalyst: Para-hydrogen fraction after catalyst (0-1)</li>
 <li>orthoFraction_moderator: Ortho-hydrogen fraction in moderator (0-1)</li>
 <li>paraFraction_moderator: Para-hydrogen fraction in moderator (0-1)</li>
+<li>currentBeamPower: Time-varying beam heat load (W)</li>
 </ul>
 </html>"));
 end LiquidHydrogenSystem;

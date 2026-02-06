@@ -68,13 +68,14 @@ The model tracks these effects in:
 - PID controller adjusts cooling power to reach and maintain setpoint
 
 ### Operating Phase (1000s+)
-- Beam turns ON
-- Beam deposits heat load (2000W) into moderator vessel
-- Moderator temperature rises
-- Back-conversion increases due to higher temperature
+- Beam ramps up from 0 to 2000W over 200 seconds (1000-1200s)
+- After ramp-up, beam operates at full power with 10% fluctuations (simulates realistic beam variations)
+- Variable beam power deposits time-varying heat load into moderator vessel
+- Moderator temperature varies with beam power fluctuations
+- Back-conversion rate adjusts based on actual beam power
 - Warm hydrogen returns to cold box
-- PID controller increases cooling power to compensate
-- System reaches new steady state
+- PID controller dynamically adjusts cooling power to compensate
+- System maintains stable operation despite variable heat load
 
 ## Key Parameters
 
@@ -92,7 +93,7 @@ The model tracks these effects in:
 
 ### Moderator Vessel
 - Mass: 50 kg
-- Beam heat load: 2000 W
+- Beam heat load: Variable (0-2200W with fluctuations)
 
 ### Transfer Lines
 - Length: 10 m each
@@ -122,6 +123,7 @@ The model tracks these effects in:
    - `paraFraction_catalyst` - Para fraction after catalyst
    - `orthoFraction_moderator` - Ortho fraction in moderator
    - `paraFraction_moderator` - Para fraction in moderator
+   - `currentBeamPower` - Time-varying beam heat load
 
 ### Using OpenModelica Compiler (omc)
 ```bash
@@ -144,23 +146,23 @@ omc.sendExpression("simulate(CryoSystem.LiquidHydrogenSystem, stopTime=2000)")
 ## Expected Results
 
 ### Temperature Profiles
-- **Cold Box**: Starts at ~300K, cools to 20K, slight increase when beam turns on
+- **Cold Box**: Starts at ~300K, cools to 20K, responds to variable beam power
 - **Catalyst Vessel**: Follows cold box, may be slightly warmer due to conversion heat
-- **Moderator**: Starts at 20K, rises significantly when beam turns on
+- **Moderator**: Starts at 20K, rises and fluctuates with variable beam power after 1000s
 - **Supply Line**: Close to catalyst temperature with slight heat leak
-- **Return Line**: Close to moderator temperature with slight heat leak
+- **Return Line**: Tracks moderator temperature fluctuations with slight heat leak
 
 ### Ortho-Para Conversion
 - **Initial State**: System starts at ~75% ortho (room temperature equilibrium)
 - **After Catalyst**: Ortho fraction drops significantly (target: <5% at steady state)
 - **In Moderator**: Para fraction slightly decreases due to back-conversion
-- **Beam Effect**: When beam turns on, back-conversion increases with temperature
+- **Variable Beam Effect**: Back-conversion rate varies proportionally with beam power
 
 ### Control Signal
 - Initially high (1.0) during cool-down
 - Decreases as target temperature is reached
 - Must compensate for catalyst conversion heat
-- Increases when beam turns on to provide additional cooling
+- Dynamically adjusts to track variable beam power fluctuations
 
 ## Model Validation
 
@@ -201,15 +203,40 @@ Three catalyst types are available with different effectiveness:
 - `"nickel"`: Effectiveness = 0.8 (slower conversion)
 
 ### Changing Beam Schedule
-Modify the equation in `LiquidHydrogenSystem.mo`:
+The beam power profile is now fully configurable using parameters in `LiquidHydrogenSystem.mo`:
 
 ```modelica
-if time < 1000 then
-  beamStatus = 0;  // Change 1000 to desired beam-on time
-else
-  beamStatus = 1;
-end if;
+// Beam profile parameters (default values shown)
+parameter Real beamStartTime = 1000;           // Time when beam starts (s)
+parameter Real rampDuration = 200;             // Duration of power ramp (s)
+parameter Real nominalBeamPower = 2000;        // Nominal beam power (W)
+parameter Real fluctuationAmplitude = 0.1;     // Fluctuation amplitude (fraction)
+parameter Real fluctuationPeriod = 100;        // Fluctuation period (s)
 ```
+
+**Example configurations:**
+
+```modelica
+// Simple on/off beam (no ramp, no fluctuations)
+beamStartTime = 1000
+rampDuration = 0
+fluctuationAmplitude = 0
+
+// Slow ramp with minimal fluctuations
+beamStartTime = 500
+rampDuration = 500
+fluctuationAmplitude = 0.02
+
+// High power with large variations
+nominalBeamPower = 3000
+fluctuationAmplitude = 0.15
+
+// Fast fluctuations (simulating beam instability)
+fluctuationPeriod = 50
+fluctuationAmplitude = 0.2
+```
+
+For custom beam profiles, modify the equation section to implement any time-dependent function.
 
 ## Physical Properties
 
