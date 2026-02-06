@@ -9,10 +9,13 @@ model ColdBox "Cold Box Model for Cooling Liquid Hydrogen"
   
   // Variables
   Real T(start=300) "Temperature of cold box (K)";
+  Real orthoFraction "Fraction of ortho-hydrogen (0 to 1)";
+  Real paraFraction "Fraction of para-hydrogen (0 to 1)";
   Real Q_cooling "Cooling power applied (W)";
   Real Q_in "Heat input from return flow (W)";
   Real massFlowIn "Mass flow rate into cold box (kg/s)";
   Real T_in "Temperature of return flow (K)";
+  Real orthoFraction_in "Incoming ortho fraction from return";
   
   // Control input
   input Real u_control "Control signal from PID (0 to 1)";
@@ -20,8 +23,13 @@ model ColdBox "Cold Box Model for Cooling Liquid Hydrogen"
   // Outputs
   output Real T_out "Temperature output to transfer line (K)";
   output Real massFlowOut "Mass flow rate output (kg/s)";
+  output Real orthoFraction_out "Outgoing ortho fraction";
+  output Real paraFraction_out "Outgoing para fraction";
   
 equation
+  // Calculate para fraction
+  paraFraction = 1 - orthoFraction;
+  
   // Cooling power proportional to control signal
   Q_cooling = -coolingPower * u_control;
   
@@ -31,12 +39,18 @@ equation
   // Energy balance
   mass * cp * der(T) = Q_cooling + Q_in;
   
+  // Ortho-para fraction passes through from return flow (no conversion in cold box without catalyst)
+  orthoFraction = orthoFraction_in;
+  
   // Output conditions
   T_out = T;
   massFlowOut = massFlowRate;
+  orthoFraction_out = orthoFraction;
+  paraFraction_out = paraFraction;
   
   annotation(Documentation(info="<html>
 <p>Model of a cold box that cools liquid hydrogen to cryogenic temperatures.</p>
 <p>The cold box receives warm hydrogen from the moderator vessel and cools it back down.</p>
+<p>Ortho-para fractions pass through unchanged unless a catalyst is present downstream.</p>
 </html>"));
 end ColdBox;
