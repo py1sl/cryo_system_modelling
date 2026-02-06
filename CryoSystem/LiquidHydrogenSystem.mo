@@ -132,11 +132,11 @@ The beam power profile is configurable via parameters:</p>
 <ul>
 <li><b>beamStartTime:</b> When beam ramping begins (default: 1000s)</li>
 <li><b>rampDuration:</b> Duration of power ramp-up (default: 200s)</li>
-<li><b>nominalBeamPower:</b> Full beam power (default: 2000W)</li>
+<li><b>nominalBeamPower:</b> Full beam power (default: 200W)</li>
 <li><b>fluctuationAmplitude:</b> Amplitude of beam variations as fraction of nominal (default: 0.1)</li>
 <li><b>fluctuationPeriod:</b> Period of sinusoidal fluctuations (default: 100s)</li>
 </ul>
-<p>With default parameters, the beam ramps up from 0 to 2000W over 200 seconds (1000-1200s), then operates
+<p>With default parameters, the beam ramps up from 0 to 200W over 200 seconds (1000-1200s), then operates
 at full power with ±10% sinusoidal fluctuations to simulate realistic beam variations.
 The PID controller adjusts the cold box cooling power to maintain stable temperatures.</p>
 <h3>Key Outputs:</h3>
