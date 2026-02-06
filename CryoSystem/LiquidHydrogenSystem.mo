@@ -38,7 +38,8 @@ equation
     beamPower = (time - 1000) * 10;
   else
     // Full power with 10% variation (simulating beam fluctuations)
-    beamPower = 2000 * (1 + 0.1 * sin(time/100));
+    // Adjusted phase to ensure smooth transition at t=1200
+    beamPower = 2000 * (1 + 0.1 * sin((time - 1200)/100));
   end if;
   
   // Connect cold box to catalyst vessel
