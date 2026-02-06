@@ -6,6 +6,7 @@ model TransferLine "Transfer Line for Hydrogen Flow"
   parameter Real thermalMass = 10 "Thermal mass of line (kg)";
   parameter Real cp = 14300 "Specific heat capacity (J/(kg*K))";
   parameter Real k_backconversion_wall = 0.0002 "Back conversion rate due to wall interactions (1/s)" annotation(Dialog(tab="Advanced"));
+  parameter Real T_backconversion_scale = 50 "Temperature scale for back-conversion rate (K)" annotation(Dialog(tab="Advanced"));
   
   // Variables
   Real T(start=20) "Average temperature of transfer line (K)";
@@ -39,7 +40,7 @@ equation
   
   // Back-conversion due to wall interactions (minimal but present)
   // Pipe walls can catalyze para-to-ortho conversion
-  backConversionRate = k_backconversion_wall * paraFraction * thermalMass * exp(T/50);
+  backConversionRate = k_backconversion_wall * paraFraction * thermalMass * exp(T/T_backconversion_scale);
   
   // Net change in ortho fraction (back-conversion increases ortho)
   der(orthoFraction) = backConversionRate / thermalMass;
@@ -60,6 +61,10 @@ through surface interactions. This effect is typically small but increases with:
 <li>Higher temperatures</li>
 <li>Longer residence time (lower flow rates)</li>
 <li>Surface material properties</li>
+</ul>
+<h3>Parameters:</h3>
+<ul>
+<li><b>T_backconversion_scale:</b> Temperature scale for wall-induced back-conversion kinetics (K)</li>
 </ul>
 </html>"));
 end TransferLine;

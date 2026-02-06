@@ -5,6 +5,8 @@ model ModeratorVessel "Moderator Vessel with Beam Heat Load"
   parameter Real cp = 14300 "Specific heat capacity of liquid H2 (J/(kg*K))";
   parameter Real beamPower = 2000 "Beam heat load when on (W)";
   parameter Real k_backconversion_wall = 0.0005 "Back conversion rate due to wall interactions (1/s)" annotation(Dialog(tab="Advanced"));
+  parameter Real beamBackconversionFactor = 0.5 "Beam heating effect on back-conversion rate (dimensionless)" annotation(Dialog(tab="Advanced"));
+  parameter Real T_backconversion_scale = 50 "Temperature scale for back-conversion rate (K)" annotation(Dialog(tab="Advanced"));
   
   // Variables
   Real T(start=20) "Temperature of moderator vessel (K)";
@@ -38,7 +40,7 @@ equation
   
   // Back-conversion due to wall interactions and beam heating
   // Increases with temperature and para content
-  backConversionRate = k_backconversion_wall * paraFraction * mass * (1 + beamOn * 0.5) * exp(T/50);
+  backConversionRate = k_backconversion_wall * paraFraction * mass * (1 + beamOn * beamBackconversionFactor) * exp(T/T_backconversion_scale);
   
   // Net change in ortho fraction (back-conversion increases ortho)
   der(orthoFraction) = backConversionRate / mass;
@@ -63,5 +65,10 @@ equation
 </ul>
 <p>This back-conversion partially reverses the catalyst effect and must be accounted for
 in the overall system hydrogen composition.</p>
+<h3>Parameters:</h3>
+<ul>
+<li><b>beamBackconversionFactor:</b> Multiplier for how much beam heating increases back-conversion (dimensionless)</li>
+<li><b>T_backconversion_scale:</b> Temperature scale for back-conversion kinetics (K)</li>
+</ul>
 </html>"));
 end ModeratorVessel;

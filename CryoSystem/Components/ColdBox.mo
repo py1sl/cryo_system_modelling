@@ -9,7 +9,7 @@ model ColdBox "Cold Box Model for Cooling Liquid Hydrogen"
   
   // Variables
   Real T(start=300) "Temperature of cold box (K)";
-  Real orthoFraction(start=0.75) "Fraction of ortho-hydrogen (0 to 1)";
+  Real orthoFraction "Fraction of ortho-hydrogen (0 to 1)";
   Real paraFraction "Fraction of para-hydrogen (0 to 1)";
   Real Q_cooling "Cooling power applied (W)";
   Real Q_in "Heat input from return flow (W)";
@@ -39,8 +39,8 @@ equation
   // Energy balance
   mass * cp * der(T) = Q_cooling + Q_in;
   
-  // Ortho-para fraction passes through (no conversion in cold box without catalyst)
-  der(orthoFraction) = 0; // Cold box doesn't change ortho-para ratio
+  // Ortho-para fraction passes through from return flow (no conversion in cold box without catalyst)
+  orthoFraction = orthoFraction_in;
   
   // Output conditions
   T_out = T;

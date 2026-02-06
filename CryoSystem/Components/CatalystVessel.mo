@@ -12,6 +12,9 @@ model CatalystVessel "Catalyst Vessel for Ortho-Para Hydrogen Conversion"
   parameter Real k_conversion = 0.05 "Conversion rate constant (1/s)" annotation(Dialog(tab="Advanced"));
   parameter Real k_backconversion = 0.001 "Back conversion rate constant (1/s)" annotation(Dialog(tab="Advanced"));
   parameter Real T_equilibrium = 20 "Temperature for equilibrium calculations (K)" annotation(Dialog(tab="Advanced"));
+  parameter Real referenceCatalystMass = 5.0 "Reference catalyst mass for rate normalization (kg)" annotation(Dialog(tab="Advanced"));
+  parameter Real T_conversion_scale = 30 "Temperature scale for conversion rate (K)" annotation(Dialog(tab="Advanced"));
+  parameter Real T_backconversion_scale = 50 "Temperature scale for back-conversion rate (K)" annotation(Dialog(tab="Advanced"));
   
   // Variables
   Real T(start=20) "Temperature of catalyst vessel (K)";
@@ -52,11 +55,11 @@ equation
   
   // Ortho to para conversion rate (depends on catalyst effectiveness, mass, and ortho fraction)
   // Higher conversion at lower temperatures and with more ortho present
-  conversionRate = k_conversion * catalystEffectiveness * (catalystMass/5.0) * orthoFraction * mass * exp(-T/30);
+  conversionRate = k_conversion * catalystEffectiveness * (catalystMass/referenceCatalystMass) * orthoFraction * mass * exp(-T/T_conversion_scale);
   
   // Para to ortho back-conversion (thermal activation increases with temperature)
   // Back conversion increases with temperature and para content
-  backConversionRate = k_backconversion * paraFraction * mass * exp(T/50);
+  backConversionRate = k_backconversion * paraFraction * mass * exp(T/T_backconversion_scale);
   
   // Net change in ortho fraction due to conversion
   der(orthoFraction) = (backConversionRate - conversionRate) / mass;
@@ -116,6 +119,8 @@ by the cryogenic system.</p>
 <li><b>conversionHeat:</b> Heat of conversion, 527 kJ/kg (exothermic)</li>
 <li><b>k_conversion:</b> Forward conversion rate constant</li>
 <li><b>k_backconversion:</b> Backward conversion rate constant</li>
+<li><b>T_conversion_scale:</b> Temperature scale for conversion kinetics (K)</li>
+<li><b>T_backconversion_scale:</b> Temperature scale for back-conversion kinetics (K)</li>
 </ul>
 
 <h3>Outputs:</h3>
