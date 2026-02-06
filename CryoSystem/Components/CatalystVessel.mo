@@ -1,7 +1,7 @@
 within CryoSystem.Components;
 model CatalystVessel "Catalyst Vessel for Ortho-Para Hydrogen Conversion"
   // Parameters
-  parameter Real mass = 20 "Mass of hydrogen in catalyst vessel (kg)";
+  parameter Real mass = 0.059 "Mass of hydrogen in catalyst vessel (kg)";
   parameter Real cp = 14300 "Specific heat capacity of liquid H2 (J/(kg*K))";
   parameter Real catalystMass = 5 "Mass of catalyst material (kg)";
   parameter String catalystType = "iron_oxide" "Type of catalyst: iron_oxide, chromium_oxide, nickel";

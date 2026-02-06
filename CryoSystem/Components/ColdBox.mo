@@ -1,11 +1,11 @@
 within CryoSystem.Components;
 model ColdBox "Cold Box Model for Cooling Liquid Hydrogen"
   // Parameters
-  parameter Real mass = 100 "Mass of hydrogen in cold box (kg)";
+  parameter Real mass = 0.059 "Mass of hydrogen in cold box (kg)";
   parameter Real cp = 14300 "Specific heat capacity of liquid H2 (J/(kg*K))";
   parameter Real coolingPower = 5000 "Maximum cooling power (W)";
   parameter Real T_setpoint = 20 "Target temperature (K)";
-  parameter Real massFlowRate = 0.1 "Mass flow rate through system (kg/s)";
+  parameter Real massFlowRate = 0.04 "Mass flow rate through system (kg/s)";
   
   // Variables
   Real T(start=300) "Temperature of cold box (K)";

@@ -3,9 +3,9 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   // Import components
   Components.ColdBox coldBox(T_setpoint=20) annotation(Placement(transformation(extent={{-80,-10},{-60,10}})));
   Components.CatalystVessel catalystVessel(catalystType="iron_oxide", catalystMass=5) annotation(Placement(transformation(extent={{-40,-10},{-20,10}})));
-  Components.TransferLine supplyLine(length=10) annotation(Placement(transformation(extent={{0,-10},{20,10}})));
+  Components.TransferLine supplyLine(length=5) annotation(Placement(transformation(extent={{0,-10},{20,10}})));
   Components.ModeratorVessel moderatorVessel annotation(Placement(transformation(extent={{40,-10},{60,10}})));
-  Components.TransferLine returnLine(length=10) annotation(Placement(transformation(extent={{80,-10},{100,10}})));
+  Components.TransferLine returnLine(length=5) annotation(Placement(transformation(extent={{80,-10},{100,10}})));
   Components.PIDController pidController(T_setpoint=20, Kp=100, Ki=10, Kd=5) annotation(Placement(transformation(extent={{-100,20},{-80,40}})));
   
   // System variables
@@ -14,7 +14,7 @@ model LiquidHydrogenSystem "Complete Liquid Hydrogen Cryogenic System"
   // Beam profile parameters
   parameter Real beamStartTime = 1000 "Time when beam starts ramping up (s)";
   parameter Real rampDuration = 200 "Duration of beam power ramp (s)";
-  parameter Real nominalBeamPower = 2000 "Nominal beam power at full operation (W)";
+  parameter Real nominalBeamPower = 200 "Nominal beam power at full operation (W)";
   parameter Real fluctuationAmplitude = 0.1 "Amplitude of beam fluctuations as fraction of nominal (0-1)";
   parameter Real fluctuationPeriod = 100 "Period of beam fluctuations (s)";
   
